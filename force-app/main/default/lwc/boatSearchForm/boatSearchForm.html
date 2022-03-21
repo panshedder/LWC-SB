@@ -1,0 +1,13 @@
+<template>
+    <lightning-layout>
+        <lightning-layout-item class="slds-align-middle">
+            <lightning-combobox
+                class="slds-align-left"
+                name="selectBoatType"
+                label="Boat Type"
+                value={boatTypeId}
+                options={searchOptions}
+                onchange={handleSearchOptionChange}></lightning-combobox>
+        </lightning-layout-item>
+    </lightning-layout>
+</template>
