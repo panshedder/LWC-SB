@@ -1,12 +1,13 @@
 // imports
-import { LightningElement } from "lwc";
+import { LightningElement, api, wire } from "lwc";
+import getBoatsByLocation from '@salesforce/apex/BoatDataService.getBoatsByLocation';
 
 const LABEL_YOU_ARE_HERE = 'You are here!';
 const ICON_STANDARD_USER = 'standard:user';
 const ERROR_TITLE = 'Error loading Boats Near Me';
 const ERROR_VARIANT = 'error';
 export default class BoatsNearMe extends LightningElement {
-  boatTypeId;
+  @api boatTypeId;
   mapMarkers = [];
   isLoading = true;
   isRendered;
@@ -16,7 +17,12 @@ export default class BoatsNearMe extends LightningElement {
   // Add the wired method from the Apex Class
   // Name it getBoatsByLocation, and use latitude, longitude and boatTypeId
   // Handle the result and calls createMapMarkers
-  wiredBoatsJSON({error, data}) { }
+  @wire(getBoatsByLocation, { latitude: this.latitude, longitude: this.longitude, boatTypeId: '$boatTypeId' })
+  wiredBoatsJSON({error, data}) { 
+      if(data) {
+        this.createMapMarkers(data);
+      }
+  }
   
   // Controls the isRendered property
   // Calls getLocationFromBrowser()
@@ -28,7 +34,20 @@ export default class BoatsNearMe extends LightningElement {
   
   // Creates the map markers
   createMapMarkers(boatData) {
-     // const newMarkers = boatData.map(boat => {...});
-     // newMarkers.unshift({...});
+     const newMarkers = boatData.map(boat => {
+         title: boat.title,
+         location: {
+             longitude: boat.longitude,
+             latitude: boat.latitude
+         }
+     });
+     
+     newMarkers.unshift({
+        title: boat.title,
+        location: {
+            longitude: this.longitude,
+            latitude: this.latitude
+        }
+     });
    }
 }
