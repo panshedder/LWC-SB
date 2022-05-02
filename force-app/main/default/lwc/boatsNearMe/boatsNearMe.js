@@ -1,5 +1,6 @@
 // imports
-import { LightningElement, api, wire } from "lwc";
+import { LightningElement, api, wire, track } from "lwc";
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getBoatsByLocation from '@salesforce/apex/BoatDataService.getBoatsByLocation';
 
 const LABEL_YOU_ARE_HERE = 'You are here!';
@@ -8,46 +9,72 @@ const ERROR_TITLE = 'Error loading Boats Near Me';
 const ERROR_VARIANT = 'error';
 export default class BoatsNearMe extends LightningElement {
   @api boatTypeId;
-  mapMarkers = [];
-  isLoading = true;
-  isRendered;
+  @track mapMarkers = [];
+  @track isLoading = true;
+  @track isRendered;
   latitude;
   longitude;
   
   // Add the wired method from the Apex Class
   // Name it getBoatsByLocation, and use latitude, longitude and boatTypeId
   // Handle the result and calls createMapMarkers
-  @wire(getBoatsByLocation, { latitude: this.latitude, longitude: this.longitude, boatTypeId: '$boatTypeId' })
+  @wire(getBoatsByLocation, { latitude: '$latitude', longitude: '$longitude', boatTypeId: '$boatTypeId' })
   wiredBoatsJSON({error, data}) { 
       if(data) {
         this.createMapMarkers(data);
+      } else if(error) {
+        const event = new ShowToastEvent({
+          title: ERROR_TITLE,
+          message: error.body.message,
+          variant: ERROR_VARIANT
+        });
+        this.dispatchEvent(event);
+        this.isLoading = false;
       }
   }
   
   // Controls the isRendered property
   // Calls getLocationFromBrowser()
-  renderedCallback() { }
+  renderedCallback() { 
+    if(!this.isRendered) {
+      this.getLocationFromBrowser();
+      this.isRendered = true;
+    }
+  }
   
   // Gets the location from the Browser
   // position => {latitude and longitude}
-  getLocationFromBrowser() { }
+  getLocationFromBrowser() {
+    if(navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(position => {
+        this.latitude = position.coords.latitude;
+        this.longitude = position.coords.longitude;
+      });
+      this.isRendered = true;
+    }
+   }
   
   // Creates the map markers
   createMapMarkers(boatData) {
-     const newMarkers = boatData.map(boat => {
-         title: boat.title,
-         location: {
-             longitude: boat.longitude,
-             latitude: boat.latitude
-         }
-     });
-     
-     newMarkers.unshift({
-        title: boat.title,
+
+    this.mapMarkers = boatData.map(boat => {
+      return {
+        title: boat.Name,
         location: {
-            longitude: this.longitude,
-            latitude: this.latitude
+            Longitude: boat.Geolocation__Longitude__s,
+            Latitude: boat.Geolocation__Latitude__s
         }
-     });
-   }
+      };
+    });
+     
+    this.mapMarkers.unshift({
+      title: LABEL_YOU_ARE_HERE,
+      icon: ICON_STANDARD_USER,
+      location: {
+          Longitude: this.longitude,
+          Latitude: this.latitude
+      }
+    });
+    this.isLoading = false;
+  }
 }

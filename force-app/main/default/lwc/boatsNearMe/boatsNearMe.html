@@ -1,19 +1,21 @@
 <template>
     <lightning-card class="slds-is-relative">
        <!-- The template and lightning-spinner goes here -->
-        <div if:true={isLoading}>
+        <template if:true={isLoading}>
             <lightning-spinner
                     alternative-text="Loading"
                     variant="brand"
             ></lightning-spinner>
-        </div>
+        </template>
        <!-- The lightning-map goes here -->
-       <div slot="footer">Top 10 Only!</div>
-       <lightning-map 
-            map-markers={mapMarkers}
-            title={LABEL_YOU_ARE_HERE}
-            icon={ICON_STANDARD_USER}
-        ></lightning-map>
+       <template if:true={isRendered}>
+            <div slot="footer">Top 10 Only!</div>
+            <lightning-map 
+                map-markers={mapMarkers}
+                title={LABEL_YOU_ARE_HERE}
+                icon={ICON_STANDARD_USER}>
+            </lightning-map>
+        </template>
     </lightning-card>
 </template>
   
