@@ -1,6 +1,8 @@
 <template>
     <div onclick={selectBoat} class={tileClass}>
-      <div style={backgroundStyle} class="tile"></div>
+      <div style={backgroundStyle} class="tile">
+        <img class="tile" src={boat.Picture__c} />
+      </div>
       <div class="lower-third">
         <!-- Boat information goes here -->
         <h1 class="slds-truncate slds-text-heading_medium">Boat: {boat.Name}</h1>
