@@ -1,5 +1,5 @@
 // import BOATMC from the message channel
-import { LightningElement, api, wire } from 'lwc';
+import { LightningElement, api, wire, track } from 'lwc';
 import { APPLICATION_SCOPE, MessageContext, subscribe } from 'lightning/messageService';
 import { getRecord } from 'lightning/uiRecordApi';
 import BOATMC from '@salesforce/messageChannel/BoatMessageChannel__c';
@@ -26,7 +26,7 @@ export default class BoatMap extends LightningElement {
   }
 
   error = undefined;
-  mapMarkers = [];
+  @track mapMarkers = [];
 
   // Initialize messageContext for Message Service
   @wire(MessageContext)
@@ -76,13 +76,14 @@ export default class BoatMap extends LightningElement {
   updateMap(Longitude, Latitude) {
     this.mapMarkers.push({
       location: {
-        latitude: Latitude,
-        longitude: Longitude
+        Latitude: Latitude,
+        Longitude: Longitude
       }
     });
   }
 
   // Getter method for displaying the map component, or a helper method.
+  @api
   get showMap() {
     return this.mapMarkers.length > 0;
   }
