@@ -18,7 +18,7 @@ import BOAT_NAME_FIELD from '@salesforce/schema/Boat__c.Name';
 const BOAT_FIELDS = [BOAT_ID_FIELD, BOAT_NAME_FIELD];
 
 export default class BoatDetailTabs extends NavigationMixin(LightningElement) {
-  @track boatId;
+  boatId;
   label = {
     labelDetails,
     labelReviews,
@@ -62,6 +62,8 @@ export default class BoatDetailTabs extends NavigationMixin(LightningElement) {
                 },
                 { scope: APPLICATION_SCOPE }
             );
+        } else {
+            return;
         }
     }
     
